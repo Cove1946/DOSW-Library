@@ -1,4 +1,4 @@
-package edu.eci.dosw.tdd.exception;
+package edu.eci.dosw.tdd.core.exception;
 
 public class BookNotAvailableException {
 }
