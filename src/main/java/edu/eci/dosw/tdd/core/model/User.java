@@ -1,12 +1,14 @@
 package edu.eci.dosw.tdd.core.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.cglib.core.Local;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
+    private String id;
     private String name;
-    private String ID;
-
 }
+

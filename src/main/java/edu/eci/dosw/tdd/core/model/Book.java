@@ -1,13 +1,16 @@
 package edu.eci.dosw.tdd.core.model;
+import lombok.*;
 
-import jdk.jfr.DataAmount;
-import lombok.Data;
-
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Book {
-
-    private String Tile;
+    @EqualsAndHashCode.Include
+    private String id;
+    private String title;
     private String author;
-    private String Id;
-
+    private boolean available;
 }
+
