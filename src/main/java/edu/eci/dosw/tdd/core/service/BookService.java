@@ -14,30 +14,42 @@ import java.util.Map;
 @Service
 public class BookService {
 
-    private final List<User> users = new ArrayList<>();
-    private final List<Loan> loans = new ArrayList<>();
     private final Map<Book, Integer> books = new HashMap<>();
 
-    public void addBook(Book book, int copies){
+    public void addBook(Book book, int copies) {
         books.put(book, copies);
     }
 
-    public List<Book> getAllBooks(){
+    public List<Book> getAllBooks() {
         return new ArrayList<>(books.keySet());
     }
 
-    public Book getBookById(String id){
+    public Book getBookById(String id) {
         return books.keySet().stream()
-                .filter( b -> b.getId().equals(id))
+                .filter(b -> b.getId().equals(id))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new RuntimeException("Book not found: " + id));
     }
 
-    public void updateBookAvailability (String id, boolean available){
+    public void updateBookAvailability(String id, boolean available) {
         Book book = getBookById(id);
         book.setAvailable(available);
     }
 
+    public int getCopies(String id) {
+        Book book = getBookById(id);
+        return books.get(book);
+    }
+
+    public void updateCopies(String id, int copies) {
+        Book book = getBookById(id);
+        books.put(book, copies);
+    }
+
+    public void deleteBook(String id) {
+        Book book = getBookById(id);
+        books.remove(book);
+    }
 
 
 }
