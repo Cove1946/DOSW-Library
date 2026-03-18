@@ -63,5 +63,6 @@ public class LoanService {
     public List<Loan> getAllLoans() {
         return new ArrayList<>(loans);
     }
+
 }
 
