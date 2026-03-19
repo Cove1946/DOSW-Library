@@ -61,7 +61,6 @@ public class BookService {
         book.setAvailable(true);
     }
 
-    // Expone el mapa completo (útil para tests y LoanService)
     public Map<Book, Integer> getInventory() {
         return Collections.unmodifiableMap(bookInventory);
     }
