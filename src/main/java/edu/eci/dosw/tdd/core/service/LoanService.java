@@ -1,51 +1,42 @@
 package edu.eci.dosw.tdd.core.service;
 
 import edu.eci.dosw.tdd.core.exception.BookNotAvailableException;
-import edu.eci.dosw.tdd.core.exception.LoanLimitExceededException;
+import edu.eci.dosw.tdd.core.exception.UserNotFoundException;
 import edu.eci.dosw.tdd.core.model.Book;
 import edu.eci.dosw.tdd.core.model.Loan;
 import edu.eci.dosw.tdd.core.model.Status;
 import edu.eci.dosw.tdd.core.model.User;
-import edu.eci.dosw.tdd.core.validator.LoanValidator;
 import org.springframework.stereotype.Service;
+
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class LoanService {
 
-    private static final int MAX_ACTIVE_LOANS = 3;
     private final List<Loan> loans = new ArrayList<>();
     private final BookService bookService;
     private final UserService userService;
-    private final LoanValidator loanValidator;
 
-    public LoanService(BookService bookService, UserService userService, LoanValidator loanValidator) {
+    public LoanService(BookService bookService, UserService userService) {
         this.bookService = bookService;
         this.userService = userService;
-        this.loanValidator = loanValidator;
     }
 
-    public Loan createLoan(String bookId, String userId) {
-        loanValidator.validateLoanRequest(bookId, userId);
+    public Loan createLoan(String bookId, String userId) throws BookNotAvailableException, UserNotFoundException {
         Book book = bookService.getBookById(bookId);
         User user = userService.getUserById(userId);
 
-        if (!book.isAvailable() || bookService.getCopies(bookId) == 0) {
-            throw new BookNotAvailableException(bookId);
+        int copies = bookService.getCopies(bookId);
+        if (copies <= 0) {
+            throw new BookNotAvailableException("No hay copias disponibles para: " + bookId);
         }
 
-        long activeLoans = loans.stream()
-                .filter(l -> l.getUser().getId().equals(userId) && l.getStatus() == Status.ACTIVE)
-                .count();
-
-        if (activeLoans >= MAX_ACTIVE_LOANS) {
-            throw new LoanLimitExceededException(userId);
-        }
-
-        bookService.decrementCopy(bookId);
+        bookService.updateCopies(bookId, copies - 1);
 
         Loan loan = new Loan(book, user, LocalDate.now(), Status.ACTIVE, null);
         loans.add(loan);
@@ -54,16 +45,18 @@ public class LoanService {
 
     public Loan returnBook(String bookId, String userId) {
         Loan loan = loans.stream()
-                .filter(l -> l.getBook().getId().equals(bookId)
-                        && l.getUser().getId().equals(userId)
-                        && l.getStatus() == Status.ACTIVE)
+                .filter(l -> l.getBook().getId().equals(bookId))
+                .filter(l -> l.getUser().getId().equals(userId))
+                .filter(l -> l.getStatus() == Status.ACTIVE)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "No se encontró préstamo activo para libro " + bookId + " y usuario " + userId));
+                .orElseThrow(() -> new RuntimeException("Préstamo activo no encontrado"));
 
         loan.setStatus(Status.RETURNED);
         loan.setReturnDate(LocalDate.now());
-        bookService.incrementCopy(bookId);
+
+        int copies = bookService.getCopies(bookId);
+        bookService.updateCopies(bookId, copies + 1);
+
         return loan;
     }
 
@@ -71,11 +64,5 @@ public class LoanService {
         return new ArrayList<>(loans);
     }
 
-    public List<Loan> getLoansByUser(String userId) {
-        userService.getUserById(userId); // valida que exista
-        return loans.stream()
-                .filter(l -> l.getUser().getId().equals(userId))
-                .toList();
-    }
 }
 

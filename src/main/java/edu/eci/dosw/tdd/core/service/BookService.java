@@ -1,67 +1,54 @@
 package edu.eci.dosw.tdd.core.service;
 
-import edu.eci.dosw.tdd.core.exception.BookNotFoundException;
 import edu.eci.dosw.tdd.core.model.Book;
-import edu.eci.dosw.tdd.core.validator.BookValidator;
+import edu.eci.dosw.tdd.core.model.Loan;
+import edu.eci.dosw.tdd.core.model.User;
+import jakarta.validation.constraints.Null;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class BookService {
 
-    private final Map<Book, Integer> bookInventory = new HashMap<>();
-    private final BookValidator bookValidator;
-
-    public BookService(BookValidator bookValidator) {
-        this.bookValidator = bookValidator;
-    }
+    private final Map<Book, Integer> books = new HashMap<>();
 
     public void addBook(Book book, int copies) {
-        bookValidator.validateBook(book);
-        bookValidator.validateCopies(copies);
-        bookInventory.merge(book, copies, Integer::sum);
+        books.put(book, copies);
     }
 
     public List<Book> getAllBooks() {
-        return new ArrayList<>(bookInventory.keySet());
+        return new ArrayList<>(books.keySet());
     }
 
     public Book getBookById(String id) {
-        return bookInventory.keySet().stream()
+        return books.keySet().stream()
                 .filter(b -> b.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new BookNotFoundException(id));
+                .orElseThrow(() -> new RuntimeException("Book not found: " + id));
     }
 
-    public void updateAvailability(String id, boolean available) {
+    public void updateBookAvailability(String id, boolean available) {
         Book book = getBookById(id);
         book.setAvailable(available);
     }
 
-    public int getCopies(String bookId) {
-        Book book = getBookById(bookId);
-        return bookInventory.getOrDefault(book, 0);
+    public int getCopies(String id) {
+        Book book = getBookById(id);
+        return books.get(book);
     }
 
-    public void decrementCopy(String bookId) {
-        Book book = getBookById(bookId);
-        int copies = bookInventory.get(book);
-        if (copies <= 1) {
-            bookInventory.put(book, 0);
-            book.setAvailable(false);
-        } else {
-            bookInventory.put(book, copies - 1);
-        }
+    public void updateCopies(String id, int copies) {
+        Book book = getBookById(id);
+        books.put(book, copies);
     }
 
-    public void incrementCopy(String bookId) {
-        Book book = getBookById(bookId);
-        bookInventory.merge(book, 1, Integer::sum);
-        book.setAvailable(true);
+    public void deleteBook(String id) {
+        Book book = getBookById(id);
+        books.remove(book);
     }
 
-    public Map<Book, Integer> getInventory() {
-        return Collections.unmodifiableMap(bookInventory);
-    }
 }

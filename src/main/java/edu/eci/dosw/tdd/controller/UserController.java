@@ -1,17 +1,15 @@
 package edu.eci.dosw.tdd.controller;
 
-import edu.eci.dosw.tdd.controller.dto.UserDTO;
+import edu.eci.dosw.tdd.core.exception.UserNotFoundException;
 import edu.eci.dosw.tdd.core.model.User;
 import edu.eci.dosw.tdd.core.service.UserService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -21,9 +19,9 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<String> registerUser(@Valid @RequestBody UserDTO dto) {
-        userService.registerUser(new User(dto.id(), dto.name()));
-        return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado.");
+    public ResponseEntity<Void> registerUser(@RequestBody User user) {
+        userService.registerUser(user);
+        return ResponseEntity.status(201).build();
     }
 
     @GetMapping
@@ -32,7 +30,19 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
+    public ResponseEntity<User> getUserById(@PathVariable String id) throws UserNotFoundException {
         return ResponseEntity.ok(userService.getUserById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateUser(@PathVariable String id, @RequestBody User updatedUser) throws UserNotFoundException {
+        userService.updateUser(id, updatedUser);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) throws UserNotFoundException {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

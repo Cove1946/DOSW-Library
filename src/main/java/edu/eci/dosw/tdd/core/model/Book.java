@@ -1,13 +1,14 @@
 package edu.eci.dosw.tdd.core.model;
-import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
 @AllArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
+
 public class Book {
-    @EqualsAndHashCode.Include
     private String id;
     private String title;
     private String author;
