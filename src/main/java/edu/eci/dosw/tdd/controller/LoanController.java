@@ -35,4 +35,19 @@ public class LoanController {
     public ResponseEntity<List<Loan>> getAllLoans() {
         return ResponseEntity.ok(loanService.getAllLoans());
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Loan>> getLoansByUser(@PathVariable String userId) throws UserNotFoundException {
+        return ResponseEntity.ok(loanService.getLoansByUser(userId));
+    }
+
+    @GetMapping("/book/{bookId}")
+    public ResponseEntity<List<Loan>> getLoanByBook (@PathVariable String bookId){
+        return ResponseEntity.ok(loanService.getLoansByBook(bookId));
+    }
+
+    @PutMapping("/expire")
+    public ResponseEntity<Loan> expireLoan(@RequestParam String bookId, @RequestParam String userId){
+        return ResponseEntity.ok(loanService.expireLoan(bookId, userId));
+    }
 }
