@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class LoanService {
@@ -62,6 +63,31 @@ public class LoanService {
 
     public List<Loan> getAllLoans() {
         return new ArrayList<>(loans);
+    }
+
+    public List<Loan> getLoansByUser(String userId) throws UserNotFoundException {
+        userService.getUserById(userId);
+        return loans.stream()
+                .filter(l -> l.getUser().getId().equals(userId))
+                .collect(Collectors.toList());
+    }
+
+    public List<Loan> getLoansByBook(String bookId){
+        bookService.getBookById(bookId);
+        return loans.stream()
+                .filter(l -> l.getBook().getId().equals(bookId))
+                .collect(Collectors.toList());
+    }
+
+    public Loan expireLoan(String bookId, String userId){
+        Loan loan = loans.stream()
+                .filter(l -> l.getBook().getId().equals(bookId))
+                .filter(l -> l.getUser().getId().equals(userId))
+                .filter(l -> l.getStatus() == Status.ACTIVE)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Prestamo activo no encontrado"));
+        loan.setStatus(Status.EXPIRED);
+        return loan;
     }
 
 }

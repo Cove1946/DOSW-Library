@@ -1,5 +1,5 @@
 package edu.eci.dosw.tdd.core.model;
 
 public enum Status {
-    ACTIVE, RETURNED
+    ACTIVE, RETURNED, EXPIRED
 }
