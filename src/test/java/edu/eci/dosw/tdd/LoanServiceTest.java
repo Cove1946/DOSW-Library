@@ -1,6 +1,7 @@
 package edu.eci.dosw.tdd;
 
 import edu.eci.dosw.tdd.core.exception.BookNotAvailableException;
+import edu.eci.dosw.tdd.core.exception.LoanLimitExceededException;
 import edu.eci.dosw.tdd.core.model.Book;
 import edu.eci.dosw.tdd.core.model.Loan;
 import edu.eci.dosw.tdd.core.model.Status;
@@ -8,12 +9,14 @@ import edu.eci.dosw.tdd.core.model.User;
 import edu.eci.dosw.tdd.core.service.BookService;
 import edu.eci.dosw.tdd.core.service.LoanService;
 import edu.eci.dosw.tdd.core.service.UserService;
+import edu.eci.dosw.tdd.core.util.DateUtil;
 import edu.eci.dosw.tdd.core.validator.BookValidator;
 import edu.eci.dosw.tdd.core.validator.LoanValidator;
 import edu.eci.dosw.tdd.core.validator.UserValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -112,5 +115,20 @@ class LoanServiceTest {
         assertThrows(RuntimeException.class, () ->
                 loanService.returnBook("B1", "U1")
         );
+    }
+    @Test
+    void isExpired_shouldReturnTrue_whenDateExceeded() {
+        assertTrue(DateUtil.isExpired(LocalDate.now().minusDays(8), 7));
+    }
+
+    @Test
+    void isExpired_shouldReturnFalse_whenDateNotExceeded() {
+        assertFalse(DateUtil.isExpired(LocalDate.now(), 7));
+    }
+
+    @Test
+    void loanLimitExceededException_shouldContainMessage() {
+        LoanLimitExceededException ex = new LoanLimitExceededException("límite alcanzado");
+        assertEquals("límite alcanzado", ex.getMessage());
     }
 }

@@ -28,26 +28,32 @@
 
 	<dependencies>
 
-		<!-- Spring Boot Web (habilita @RestController, @RequestMapping, etc.) -->
+		<!-- Spring Boot Web -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
-		<!-- Bean Validation (@NotBlank, @Valid en DTOs y controllers) -->
+		<!-- Bean Validation -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 
-		<!-- Lombok (@Data, @AllArgsConstructor, @NoArgsConstructor) -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+
+		<!-- Lombok-->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- Testing: JUnit 5 + Mockito + Spring Test -->
+		<!-- Testing:-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -64,7 +70,6 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<!-- Excluye Lombok del jar final, solo es necesario en compilación -->
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
@@ -74,7 +79,7 @@
 				</configuration>
 			</plugin>
 
-			<!-- JaCoCo: cobertura de pruebas -->
+			<!-- JaCoCo -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
