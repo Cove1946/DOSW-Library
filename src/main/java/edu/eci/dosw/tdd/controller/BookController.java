@@ -36,8 +36,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}/availability")
-    public ResponseEntity<Void> updateAvailability(@PathVariable String id,
-                                                   @RequestParam boolean available) {
+    public ResponseEntity<Void> updateAvailability(@PathVariable String id, @RequestParam boolean available) {
         bookService.updateBookAvailability(id, available);
         return ResponseEntity.ok().build();
     }

@@ -1,9 +1,8 @@
 package edu.eci.dosw.tdd.core.service;
 
 import edu.eci.dosw.tdd.core.model.Book;
-import edu.eci.dosw.tdd.core.model.Loan;
-import edu.eci.dosw.tdd.core.model.User;
-import jakarta.validation.constraints.Null;
+import edu.eci.dosw.tdd.core.util.ValidationUtil;
+import edu.eci.dosw.tdd.core.validator.BookValidator;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,8 +14,15 @@ import java.util.Map;
 public class BookService {
 
     private final Map<Book, Integer> books = new HashMap<>();
+    private final BookValidator bookValidator;
+
+    public BookService(BookValidator bookValidator) {
+        this.bookValidator = bookValidator;
+    }
 
     public void addBook(Book book, int copies) {
+        bookValidator.validate(book);
+        bookValidator.validateCopies(copies);
         books.put(book, copies);
     }
 
@@ -25,6 +31,7 @@ public class BookService {
     }
 
     public Book getBookById(String id) {
+        ValidationUtil.validateNotBlank(id, "El ID del libro no puede estar vacío");
         return books.keySet().stream()
                 .filter(b -> b.getId().equals(id))
                 .findFirst()
@@ -32,23 +39,27 @@ public class BookService {
     }
 
     public void updateBookAvailability(String id, boolean available) {
+        ValidationUtil.validateNotBlank(id, "El ID del libro no puede estar vacío");
         Book book = getBookById(id);
         book.setAvailable(available);
     }
 
     public int getCopies(String id) {
+        ValidationUtil.validateNotBlank(id, "El ID del libro no puede estar vacío");
         Book book = getBookById(id);
         return books.get(book);
     }
 
     public void updateCopies(String id, int copies) {
+        ValidationUtil.validateNotBlank(id, "El ID del libro no puede estar vacío");
+        ValidationUtil.validatePositive(copies, "Las copias deben ser mayor a 0");
         Book book = getBookById(id);
         books.put(book, copies);
     }
 
     public void deleteBook(String id) {
+        ValidationUtil.validateNotBlank(id, "El ID del libro no puede estar vacío");
         Book book = getBookById(id);
         books.remove(book);
     }
-
 }
