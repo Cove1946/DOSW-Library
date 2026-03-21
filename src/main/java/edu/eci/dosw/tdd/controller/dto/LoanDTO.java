@@ -1,8 +1,13 @@
 package edu.eci.dosw.tdd.controller.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record LoanDTO() {
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class LoanDTO {
+    private String bookId;
+    private String userId;
 }
-
