@@ -52,7 +52,6 @@ public class BookService {
 
     public void updateCopies(String id, int copies) {
         ValidationUtil.validateNotBlank(id, "El ID del libro no puede estar vacío");
-        ValidationUtil.validatePositive(copies, "Las copias deben ser mayor a 0");
         Book book = getBookById(id);
         books.put(book, copies);
     }

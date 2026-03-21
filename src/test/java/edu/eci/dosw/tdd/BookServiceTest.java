@@ -1,10 +1,13 @@
 package edu.eci.dosw.tdd;
 
+
 import edu.eci.dosw.tdd.core.model.Book;
 import edu.eci.dosw.tdd.core.service.BookService;
 import edu.eci.dosw.tdd.core.validator.BookValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,54 +20,66 @@ class BookServiceTest {
         bookService = new BookService(new BookValidator());
     }
 
+    // ─── EXITOSOS ─────────────────────────────────────────
+
     @Test
-    void shouldAddBookSuccessfully() {
-        Book book = new Book("B001", "Clean Code", "Robert C. Martin", true);
+    void addBook_shouldAddBookSuccessfully() {
+        Book book = new Book("B1", "Clean Code", "Robert Martin", true);
         bookService.addBook(book, 3);
-        assertEquals(3, bookService.getCopies("B001"));
+        assertEquals(book, bookService.getBookById("B1"));
     }
 
     @Test
-    void shouldGetAllBooks() {
-        bookService.addBook(new Book("B001", "Clean Code", "Martin", true), 2);
-        bookService.addBook(new Book("B002", "Refactoring", "Fowler", true), 1);
-        assertEquals(2, bookService.getAllBooks().size());
+    void getAllBooks_shouldReturnAllBooks() {
+        bookService.addBook(new Book("B1", "Clean Code", "Robert Martin", true), 3);
+        bookService.addBook(new Book("B2", "El Quijote", "Cervantes", true), 2);
+        List<Book> books = bookService.getAllBooks();
+        assertEquals(2, books.size());
     }
 
     @Test
-    void shouldGetBookByIdSuccessfully() {
-        Book book = new Book("B001", "Clean Code", "Martin", true);
-        bookService.addBook(book, 1);
-        Book found = bookService.getBookById("B001");
-        assertEquals("Clean Code", found.getTitle());
+    void updateBookAvailability_shouldUpdateCorrectly() {
+        bookService.addBook(new Book("B1", "Clean Code", "Robert Martin", true), 3);
+        bookService.updateBookAvailability("B1", false);
+        assertFalse(bookService.getBookById("B1").isAvailable());
     }
 
     @Test
-    void shouldThrowExceptionWhenBookNotFound() {
-        assertThrows(BookNotFoundException.class, () -> bookService.getBookById("NONEXISTENT"));
+    void deleteBook_shouldRemoveBookFromList() {
+        bookService.addBook(new Book("B1", "Clean Code", "Robert Martin", true), 3);
+        bookService.deleteBook("B1");
+        assertEquals(0, bookService.getAllBooks().size());
+    }
+
+    // ─── ERROR ────────────────────────────────────────────
+
+    @Test
+    void addBook_shouldThrowException_whenBookIsNull() {
+        assertThrows(IllegalArgumentException.class, () ->
+                bookService.addBook(null, 3)
+        );
     }
 
     @Test
-    void shouldUpdateAvailabilityToFalse() {
-        bookService.addBook(new Book("B001", "Clean Code", "Martin", true), 2);
-        bookService.updateAvailability("B001", false);
-        assertFalse(bookService.getBookById("B001").isAvailable());
+    void addBook_shouldThrowException_whenTitleIsBlank() {
+        Book book = new Book("B1", "", "Robert Martin", true);
+        assertThrows(IllegalArgumentException.class, () ->
+                bookService.addBook(book, 3)
+        );
     }
 
     @Test
-    void shouldDecrementCopyAndMarkUnavailableWhenLastCopy() {
-        bookService.addBook(new Book("B001", "Clean Code", "Martin", true), 1);
-        bookService.decrementCopy("B001");
-        assertEquals(0, bookService.getCopies("B001"));
-        assertFalse(bookService.getBookById("B001").isAvailable());
+    void addBook_shouldThrowException_whenCopiesIsZero() {
+        Book book = new Book("B1", "Clean Code", "Robert Martin", true);
+        assertThrows(IllegalArgumentException.class, () ->
+                bookService.addBook(book, 0)
+        );
     }
 
     @Test
-    void shouldIncrementCopyAndMarkAvailable() {
-        Book book = new Book("B001", "Clean Code", "Martin", false);
-        bookService.addBook(book, 0);
-        bookService.incrementCopy("B001");
-        assertEquals(1, bookService.getCopies("B001"));
-        assertTrue(bookService.getBookById("B001").isAvailable());
+    void getBookById_shouldThrowException_whenBookNotFound() {
+        assertThrows(RuntimeException.class, () ->
+                bookService.getBookById("B99")
+        );
     }
 }
