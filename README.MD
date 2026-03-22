@@ -155,5 +155,27 @@ directamente sin necesidad de herramientas externas como Postman.
 
 ![img_4.png](img_4.png)
 
+# Pruebas y cobertura
+
+### Pruebas unitarias
+
+Se implementaron 47 pruebas distribuidas en 6 clases, tanto pruebas de exito como de error para los 3 modulos del sistema
+
+![img_5.png](img_5.png)
+
+### Cobertura de pruebas - JaCoCo
+
+El analisis de cobertura realizado por JaCoCo nos da los siguientes resultados
+
+![img_6.png](img_6.png)
+
+### Analisis estático — SonarQube
+
+El analisis estatico se hizo con ayuda de SonarQube, y nos dejo los siguientes resultados
+
+![img_7.png](img_7.png)
+
+
+
 
 
