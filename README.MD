@@ -116,5 +116,44 @@ src/
 
 ## Diagrama de Componentes Generales
 
+![img.png](img.png)
+
+El sistema se divide en dos grandes componentes: **Biblioteca Front**, que representa
+la capa de presentación encargada de recibir las solicitudes HTTP del cliente, y
+**Biblioteca Core**, que concentra toda la lógica de negocio, validaciones y acceso
+a datos. La comunicación entre ambos se da a través de una interfaz provista
+(notación lollipop), lo que desacopla la presentación del dominio. El componente
+Core es el único con acceso directo a la base de datos (BD).
+
+## Diagrama de Componentes Especificos
+
+![img_1.png](img_1.png)
+
+Este diagrama desglosa internamente cómo se relacionan los componentes para cada
+entidad del sistema (Usuario, Libro y Préstamo). Cada flujo sigue el mismo patrón:
+
+- El **Mapper** transforma los datos entre el DTO y el modelo de dominio antes
+  de que lleguen al controlador.
+- El **Controller** recibe la solicitud HTTP y la delega al servicio a través
+  de una interfaz provista , manteniéndose desacoplado de la implementación.
+- El **Service** contiene la lógica de negocio y delega las validaciones al
+  **Validator**, que verifica las reglas de negocio antes de ejecutar cualquier
+  operación.
+
+Este patrón se repite de forma consistente en los tres módulos, garantizando
+uniformidad arquitectónica en todo el sistema.
+
+### Documentación de la API (Swagger)
+
+La API está completamente documentada con Swagger. Con la aplicación corriendo, se puede acceder a la documentación 
+interactiva en: http://localhost:8080/swagger-ui/index.html#/ Desde esta interfaz se pueden probar todos los endpoints
+directamente sin necesidad de herramientas externas como Postman.
+
+![img_2.png](img_2.png)
+
+![img_3.png](img_3.png)
+
+![img_4.png](img_4.png)
+
 
 
