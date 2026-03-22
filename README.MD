@@ -116,7 +116,7 @@ src/
 
 ## Diagrama de Componentes Generales
 
-![img.png](img.png)
+![img.png](Imagenes/img.png)
 
 El sistema se divide en dos grandes componentes: **Biblioteca Front**, que representa
 la capa de presentación encargada de recibir las solicitudes HTTP del cliente, y
@@ -127,7 +127,7 @@ Core es el único con acceso directo a la base de datos (BD).
 
 ## Diagrama de Componentes Especificos
 
-![img_1.png](img_1.png)
+![img_1.png](Imagenes/img_1.png)
 
 Este diagrama desglosa internamente cómo se relacionan los componentes para cada
 entidad del sistema (Usuario, Libro y Préstamo). Cada flujo sigue el mismo patrón:
@@ -149,11 +149,11 @@ La API está completamente documentada con Swagger. Con la aplicación corriendo
 interactiva en: http://localhost:8080/swagger-ui/index.html#/ Desde esta interfaz se pueden probar todos los endpoints
 directamente sin necesidad de herramientas externas como Postman.
 
-![img_2.png](img_2.png)
+![img_2.png](Imagenes/img_2.png)
 
-![img_3.png](img_3.png)
+![img_3.png](Imagenes/img_3.png)
 
-![img_4.png](img_4.png)
+![img_4.png](Imagenes/img_4.png)
 
 # Pruebas y cobertura
 
@@ -161,19 +161,19 @@ directamente sin necesidad de herramientas externas como Postman.
 
 Se implementaron 47 pruebas distribuidas en 6 clases, tanto pruebas de exito como de error para los 3 modulos del sistema
 
-![img_5.png](img_5.png)
+![img_5.png](Imagenes/img_5.png)
 
 ### Cobertura de pruebas - JaCoCo
 
 El analisis de cobertura realizado por JaCoCo nos da los siguientes resultados
 
-![img_6.png](img_6.png)
+![img_6.png](Imagenes/img_6.png)
 
 ### Analisis estático — SonarQube
 
 El analisis estatico se hizo con ayuda de SonarQube, y nos dejo los siguientes resultados
 
-![img_7.png](img_7.png)
+![img_7.png](Imagenes/img_7.png)
 
 
 
