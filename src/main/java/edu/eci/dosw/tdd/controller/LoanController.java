@@ -1,5 +1,6 @@
 package edu.eci.dosw.tdd.controller;
 
+import edu.eci.dosw.tdd.controller.mapper.LoanMapper;
 import edu.eci.dosw.tdd.core.exception.BookNotAvailableException;
 import edu.eci.dosw.tdd.core.exception.UserNotFoundException;
 import edu.eci.dosw.tdd.core.model.Loan;
@@ -14,9 +15,11 @@ import java.util.List;
 public class LoanController {
 
     private final LoanService loanService;
+    private final LoanMapper loanMapper;
 
-    public LoanController(LoanService loanService) {
+    public LoanController(LoanService loanService, LoanMapper loanMapper) {
         this.loanService = loanService;
+        this.loanMapper = loanMapper;
     }
 
     @PostMapping
@@ -25,8 +28,7 @@ public class LoanController {
     }
 
     @PutMapping("/return")
-    public ResponseEntity<Loan> returnBook(@RequestParam String bookId,
-                                           @RequestParam String userId) {
+    public ResponseEntity<Loan> returnBook(@RequestParam String bookId, @RequestParam String userId) {
         return ResponseEntity.ok(loanService.returnBook(bookId, userId));
     }
 
@@ -41,12 +43,12 @@ public class LoanController {
     }
 
     @GetMapping("/book/{bookId}")
-    public ResponseEntity<List<Loan>> getLoanByBook (@PathVariable String bookId){
+    public ResponseEntity<List<Loan>> getLoansByBook(@PathVariable String bookId) {
         return ResponseEntity.ok(loanService.getLoansByBook(bookId));
     }
 
     @PutMapping("/expire")
-    public ResponseEntity<Loan> expireLoan(@RequestParam String bookId, @RequestParam String userId){
+    public ResponseEntity<Loan> expireLoan(@RequestParam String bookId, @RequestParam String userId) {
         return ResponseEntity.ok(loanService.expireLoan(bookId, userId));
     }
 }

@@ -1,5 +1,7 @@
 package edu.eci.dosw.tdd.controller;
 
+import edu.eci.dosw.tdd.controller.dto.UserDTO;
+import edu.eci.dosw.tdd.controller.mapper.UserMapper;
 import edu.eci.dosw.tdd.core.exception.UserNotFoundException;
 import edu.eci.dosw.tdd.core.model.User;
 import edu.eci.dosw.tdd.core.service.UserService;
@@ -13,13 +15,16 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
+        this.userMapper = userMapper;
     }
 
     @PostMapping
-    public ResponseEntity<Void> registerUser(@RequestBody User user) {
+    public ResponseEntity<Void> registerUser(@RequestBody UserDTO userDTO) {
+        User user = userMapper.toModel(userDTO);
         userService.registerUser(user);
         return ResponseEntity.status(201).build();
     }
@@ -35,7 +40,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable String id, @RequestBody User updatedUser) {
+    public ResponseEntity<Void> updateUser(@PathVariable String id, @RequestBody UserDTO updatedUserDTO) {
+        User updatedUser = userMapper.toModel(updatedUserDTO);
         userService.updateUser(id, updatedUser);
         return ResponseEntity.ok().build();
     }

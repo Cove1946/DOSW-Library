@@ -1,7 +1,6 @@
 package edu.eci.dosw.tdd.core.service;
 
 import edu.eci.dosw.tdd.core.exception.BookNotAvailableException;
-import edu.eci.dosw.tdd.core.exception.UserNotFoundException;
 import edu.eci.dosw.tdd.core.model.Book;
 import edu.eci.dosw.tdd.core.model.Loan;
 import edu.eci.dosw.tdd.core.model.Status;

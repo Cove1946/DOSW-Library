@@ -1,26 +1,28 @@
 package edu.eci.dosw.tdd.controller;
 
 import edu.eci.dosw.tdd.controller.dto.BookDTO;
+import edu.eci.dosw.tdd.controller.mapper.BookMapper;
 import edu.eci.dosw.tdd.core.model.Book;
 import edu.eci.dosw.tdd.core.service.BookService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/books")
 public class BookController {
 
     private final BookService bookService;
+    private final BookMapper bookMapper;
 
-    public BookController(BookService bookService) {
+    public BookController(BookService bookService, BookMapper bookMapper) {
         this.bookService = bookService;
+        this.bookMapper = bookMapper;
     }
 
     @PostMapping
     public ResponseEntity<Void> addBook(@RequestBody BookDTO bookDTO) {
-        Book book = new Book(bookDTO.getId(), bookDTO.getTitle(), bookDTO.getAuthor(), true);
+        Book book = bookMapper.toModel(bookDTO);
         bookService.addBook(book, bookDTO.getCopies());
         return ResponseEntity.status(201).build();
     }
@@ -36,7 +38,8 @@ public class BookController {
     }
 
     @PutMapping("/{id}/availability")
-    public ResponseEntity<Void> updateAvailability(@PathVariable String id, @RequestParam boolean available) {
+    public ResponseEntity<Void> updateAvailability(@PathVariable String id,
+                                                   @RequestParam boolean available) {
         bookService.updateBookAvailability(id, available);
         return ResponseEntity.ok().build();
     }
