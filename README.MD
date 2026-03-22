@@ -114,6 +114,47 @@ src/
 
 # Diagramas 
 
+## Diagrama de clases
+
+![img_1.png](img_1.png)
+
+![img_2.png](img_2.png)
+
+![DiagramaClases.drawio.png](DiagramaClases.drawio.png)
+
+### Diagrama de Clases
+El diagrama de clases refleja la arquitectura en capas del proyecto, separando responsabilidades en dos grandes paquetes:
+core y controller.
+
+### Paquete core
+
+Es el núcleo del sistema y concentra toda la lógica de negocio. Se divide en cuatro subpaquetes:
+model define las entidades principales del dominio: Book (libro con id, título, autor y disponibilidad), User 
+(usuario con id y nombre) y Loan (préstamo que asocia un libro con un usuario, incluyendo fecha de préstamo, fecha de 
+devolución y estado). El estado del préstamo está representado por el enum Status, que puede ser ACTIVE, RETURNED o EXPIRED.
+service contiene la lógica de negocio a través de tres servicios: BookService gestiona el inventario de libros y sus 
+copias disponibles; UserService administra el registro y consulta de usuarios; y LoanService orquesta la creación, 
+devolución y expiración de préstamos, dependiendo de los dos servicios anteriores para operar. 
+
+Cabe mencionar que en este paquete también se lanzan las excepciones de dominio (BookNotAvailableException, UserNotFoundException, 
+LoanLimitExceededException), aunque estas no se representan explícitamente en el diagrama.
+validator centraliza las reglas de validación de entrada: BookValidator verifica que un libro tenga datos válidos y 
+copias positivas; UserValidator que el usuario tenga id y nombre; y LoanValidator que los identificadores de libro y 
+usuario no estén vacíos. Todos delegan las validaciones puntuales en ValidationUtil.
+util agrupa utilidades estáticas de uso transversal: ValidationUtil con métodos para validar nulos, blancos y positivos; 
+DateUtil para obtener la fecha actual y verificar vencimientos; e IdGeneratorUtil para generar identificadores únicos con UUID.
+
+### Paquete controller
+Expone la API REST y adapta la comunicación entre el cliente y el núcleo del sistema. Contiene directamente las clases 
+de controladores, DTOs, mappers y manejo de errores:
+Los controladores BookController, UserController y LoanController reciben las peticiones HTTP y delegan en sus 
+respectivos servicios. Cada uno depende también de su mapper correspondiente (BookMapper, UserMapper, LoanMapper), que 
+se encarga de convertir entre los objetos de transferencia de datos (DTOs) y las entidades del modelo de dominio. 
+Los DTOs (BookDTO, UserDTO, LoanDTO) son objetos simples que representan los datos que viajan en las peticiones y respuestas.
+Finalmente, GlobalExceptionHandler intercepta las excepciones lanzadas en cualquier capa y las transforma en respuestas 
+HTTP con el código de estado apropiado, usando ErrorResponse como estructura estandarizada de error con código y mensaje.
+
+
 ## Diagrama de Componentes Generales
 
 ![img.png](Imagenes/img.png)
@@ -174,6 +215,8 @@ El analisis de cobertura realizado por JaCoCo nos da los siguientes resultados
 El analisis estatico se hizo con ayuda de SonarQube, y nos dejo los siguientes resultados
 
 ![img_7.png](Imagenes/img_7.png)
+
+
 
 
 
