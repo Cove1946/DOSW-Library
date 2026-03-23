@@ -58,7 +58,11 @@ public class BookService {
 
     public void deleteBook(String id) {
         ValidationUtil.validateNotBlank(id, "El ID del libro no puede estar vacío");
-        Book book = getBookById(id);
+        Book book = books.keySet()
+                .stream()
+                .filter(b -> b.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Libro no encontrado"));
         books.remove(book);
     }
 }
