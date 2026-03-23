@@ -151,11 +151,11 @@ Este patrón se repite de forma consistente en los tres módulos, garantizando u
 
 ## 4.3 Diagrama de clases
 
-![4.3 Diagrama de clases](Imagenes/img_8.png)
+![4.3 Diagrama de clases](Imagenes/img8.png)
 
-![4.3 Diagrama de clases](Imagenes/img_9.png)
+![4.3 Diagrama de clases](Imagenes/img9.png)
 
-![4.3 Diagrama de clases](Imagenes/img_10.png)
+![4.3 Diagrama de clases](Imagenes/img10.png)
 
 El diagrama de clases refleja la arquitectura en capas del proyecto, separando responsabilidades en dos grandes paquetes: `core` y `controller`.
 
