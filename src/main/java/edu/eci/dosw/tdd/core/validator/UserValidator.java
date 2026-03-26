@@ -11,5 +11,7 @@ public class UserValidator {
         ValidationUtil.validateNotNull(user, "El usuario no puede ser nulo");
         ValidationUtil.validateNotBlank(user.getId(), "El ID del usuario no puede estar vacío");
         ValidationUtil.validateNotBlank(user.getName(), "El nombre no puede estar vacío");
+        ValidationUtil.validateNotNull(user.getRole(), "El rol del usuario no puede ser nulo");
     }
+
 }
