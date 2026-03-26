@@ -32,12 +32,9 @@ public class LoanService {
         Book book = bookService.getBookById(bookId);
         User user = userService.getUserById(userId);
 
-        int copies = bookService.getCopies(bookId);
-        if (copies <= 0) {
-            throw new BookNotAvailableException("No hay copias disponibles para: " + bookId);
-        }
+        loanValidator.validateBookAvailable(book.getAvailableCopies());
 
-        bookService.updateCopies(bookId, copies - 1);
+        bookService.decreaseAvailableCopies(bookId);
 
         Loan loan = new Loan(book, user, DateUtil.today(), Status.ACTIVE, null);
         loans.add(loan);
@@ -50,15 +47,15 @@ public class LoanService {
         Loan loan = loans.stream()
                 .filter(l -> l.getBook().getId().equals(bookId))
                 .filter(l -> l.getUser().getId().equals(userId))
-                .filter(l -> l.getStatus() == Status.ACTIVE)
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Préstamo activo no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Prestamo no encontrado para el libro y usuario indicados"));
+
+        loanValidator.validateActiveLoan(loan);
 
         loan.setStatus(Status.RETURNED);
         loan.setReturnDate(DateUtil.today());
 
-        int copies = bookService.getCopies(bookId);
-        bookService.updateCopies(bookId, copies + 1);
+        bookService.increaseAvailableCopies(bookId);
 
         return loan;
     }
