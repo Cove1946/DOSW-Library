@@ -12,16 +12,18 @@ public class BookMapper {
                 dto.getId(),
                 dto.getTitle(),
                 dto.getAuthor(),
-                true
+                dto.getTotalCopies(),
+                dto.getAvailableCopies()
         );
     }
 
-    public BookDTO toDTO(Book book, int copies) {
+    public BookDTO toDTO(Book book) {
         return new BookDTO(
                 book.getId(),
                 book.getTitle(),
                 book.getAuthor(),
-                copies
+                book.getTotalCopies(),
+                book.getAvailableCopies()
         );
     }
 }
