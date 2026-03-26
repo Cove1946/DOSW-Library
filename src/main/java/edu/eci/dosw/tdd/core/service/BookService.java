@@ -38,24 +38,6 @@ public class BookService {
                 .orElseThrow(() -> new RuntimeException("Book not found: " + id));
     }
 
-    public void updateBookAvailability(String id, boolean available) {
-        ValidationUtil.validateNotBlank(id, "El ID del libro no puede estar vacío");
-        Book book = getBookById(id);
-        book.setAvailable(available);
-    }
-
-    public int getCopies(String id) {
-        ValidationUtil.validateNotBlank(id, "El ID del libro no puede estar vacío");
-        Book book = getBookById(id);
-        return books.get(book);
-    }
-
-    public void updateCopies(String id, int copies) {
-        ValidationUtil.validateNotBlank(id, "El ID del libro no puede estar vacío");
-        Book book = getBookById(id);
-        books.put(book, copies);
-    }
-
     public void deleteBook(String id) {
         ValidationUtil.validateNotBlank(id, "El ID del libro no puede estar vacío");
         Book book = books.keySet()
@@ -64,5 +46,35 @@ public class BookService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Libro no encontrado"));
         books.remove(book);
+    }
+
+    public void decreaseAvailableCopies(String id) {
+        Book book = getBookById(id);
+        if (book.getAvailableCopies() <= 0) {
+            throw new IllegalStateException("No hay copias disponibles para el libro: " + id);
+        }
+        book.setAvailableCopies(book.getAvailableCopies() - 1);
+    }
+
+    public void increaseAvailableCopies(String id) {
+        Book book = getBookById(id);
+        if (book.getAvailableCopies() >= book.getTotalCopies()) {
+            throw new IllegalStateException(
+                    "Las copias disponibles ya estan al máximo para el libro: " + id
+            );
+        }
+        book.setAvailableCopies(book.getAvailableCopies() + 1);
+    }
+
+    public void updateTotalCopies(String id, int newTotal) {
+        ValidationUtil.validateNotBlank(id, "El ID del libro no puede estar vacío");
+        if (newTotal <= 0) {
+            throw new IllegalArgumentException("El total de ejemplares debe ser mayor a 0");
+        }
+        Book book = getBookById(id);
+        book.setTotalCopies(newTotal);
+        if (book.getAvailableCopies() > newTotal) {
+            book.setAvailableCopies(newTotal);
+        }
     }
 }
