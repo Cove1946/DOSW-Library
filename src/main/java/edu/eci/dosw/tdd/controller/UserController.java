@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Tag(name = "Users", description = "Operaciones para gestión de usuarios")
 @RestController
@@ -26,10 +27,10 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
-    @Operation(summary = "Registrar un usuario", description = "Registra un nuevo usuario en el sistema")
+    @Operation(summary = "Registrar un usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente"),
-            @ApiResponse(responseCode = "400", description = "Datos del usuario inválidos")
+            @ApiResponse(responseCode = "400", description = "Datos inválidos o username ya en uso")
     })
     @PostMapping
     public ResponseEntity<Void> registerUser(@RequestBody UserDTO userDTO) {
@@ -38,24 +39,40 @@ public class UserController {
         return ResponseEntity.status(201).build();
     }
 
-    @Operation(summary = "Obtener todos los usuarios", description = "Retorna la lista completa de usuarios registrados")
-    @ApiResponse(responseCode = "200", description = "Lista de usuarios retornada exitosamente")
-    @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    @Operation(summary = "Login")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login exitoso"),
+            @ApiResponse(responseCode = "400", description = "Credenciales inválidas")
+    })
+    @PostMapping("/login")
+    public ResponseEntity<UserDTO> login(@RequestParam String username,
+                                         @RequestParam String password) {
+        User user = userService.login(username, password);
+        return ResponseEntity.ok(userMapper.toDTO(user));
     }
 
-    @Operation(summary = "Obtener usuario por ID", description = "Busca y retorna un usuario específico por su identificador")
+    @Operation(summary = "Obtener todos los usuarios")
+    @ApiResponse(responseCode = "200", description = "Lista retornada exitosamente")
+    @GetMapping
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> result = userService.getAllUsers()
+                .stream()
+                .map(userMapper::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
+    }
+
+    @Operation(summary = "Obtener usuario por ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public ResponseEntity<UserDTO> getUserById(@PathVariable String id) {
+        return ResponseEntity.ok(userMapper.toDTO(userService.getUserById(id)));
     }
 
-    @Operation(summary = "Actualizar usuario", description = "Actualiza los datos de un usuario existente por su ID")
+    @Operation(summary = "Actualizar usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
@@ -68,7 +85,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Eliminar usuario", description = "Elimina un usuario del sistema por su ID")
+    @Operation(summary = "Eliminar usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Usuario eliminado exitosamente"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")

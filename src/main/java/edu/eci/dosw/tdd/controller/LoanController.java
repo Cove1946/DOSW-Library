@@ -1,7 +1,7 @@
 package edu.eci.dosw.tdd.controller;
 
+import edu.eci.dosw.tdd.controller.dto.LoanResponseDTO;
 import edu.eci.dosw.tdd.controller.mapper.LoanMapper;
-import edu.eci.dosw.tdd.core.model.Loan;
 import edu.eci.dosw.tdd.core.service.LoanService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Tag(name = "Loans", description = "Operaciones para gestión de préstamos")
 @RestController
@@ -25,64 +26,77 @@ public class LoanController {
         this.loanMapper = loanMapper;
     }
 
-    @Operation(summary = "Crear un préstamo", description = "Crea un nuevo préstamo verificando disponibilidad del libro")
+    @Operation(summary = "Crear un préstamo")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Préstamo creado exitosamente"),
-            @ApiResponse(responseCode = "409", description = "No hay copias disponibles del libro"),
+            @ApiResponse(responseCode = "409", description = "No hay copias disponibles"),
             @ApiResponse(responseCode = "404", description = "Libro o usuario no encontrado")
     })
     @PostMapping
-    public ResponseEntity<Loan> createLoan(@RequestParam String bookId,
-                                           @RequestParam String userId) {
-        return ResponseEntity.status(201).body(loanService.createLoan(bookId, userId));
+    public ResponseEntity<LoanResponseDTO> createLoan(@RequestParam String bookId,
+                                                      @RequestParam String userId) {
+        return ResponseEntity.status(201).body(loanMapper.toDTO(loanService.createLoan(bookId, userId)));
     }
 
-    @Operation(summary = "Devolver un libro", description = "Registra la devolución de un libro prestado")
+    @Operation(summary = "Devolver un libro")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Libro devuelto exitosamente"),
-            @ApiResponse(responseCode = "500", description = "Préstamo activo no encontrado")
+            @ApiResponse(responseCode = "409", description = "El préstamo ya fue devuelto"),
+            @ApiResponse(responseCode = "404", description = "Préstamo no encontrado")
     })
     @PutMapping("/return")
-    public ResponseEntity<Loan> returnBook(@RequestParam String bookId,
-                                           @RequestParam String userId) {
-        return ResponseEntity.ok(loanService.returnBook(bookId, userId));
+    public ResponseEntity<LoanResponseDTO> returnBook(@RequestParam String bookId,
+                                                      @RequestParam String userId) {
+        return ResponseEntity.ok(loanMapper.toDTO(loanService.returnBook(bookId, userId)));
     }
 
-    @Operation(summary = "Obtener todos los préstamos", description = "Retorna la lista completa de préstamos registrados")
+    @Operation(summary = "Obtener todos los préstamos")
     @ApiResponse(responseCode = "200", description = "Lista de préstamos retornada exitosamente")
     @GetMapping
-    public ResponseEntity<List<Loan>> getAllLoans() {
-        return ResponseEntity.ok(loanService.getAllLoans());
+    public ResponseEntity<List<LoanResponseDTO>> getAllLoans() {
+        List<LoanResponseDTO> result = loanService.getAllLoans()
+                .stream()
+                .map(loanMapper::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "Obtener préstamos por usuario", description = "Retorna todos los préstamos asociados a un usuario")
+    @Operation(summary = "Obtener préstamos por usuario")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Préstamos del usuario retornados exitosamente"),
+            @ApiResponse(responseCode = "200", description = "Préstamos retornados exitosamente"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Loan>> getLoansByUser(@PathVariable String userId) {
-        return ResponseEntity.ok(loanService.getLoansByUser(userId));
+    public ResponseEntity<List<LoanResponseDTO>> getLoansByUser(@PathVariable String userId) {
+        List<LoanResponseDTO> result = loanService.getLoansByUser(userId)
+                .stream()
+                .map(loanMapper::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "Obtener préstamos por libro", description = "Retorna todos los préstamos asociados a un libro")
+    @Operation(summary = "Obtener préstamos por libro")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Préstamos del libro retornados exitosamente"),
-            @ApiResponse(responseCode = "500", description = "Libro no encontrado")
+            @ApiResponse(responseCode = "200", description = "Préstamos retornados exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Libro no encontrado")
     })
     @GetMapping("/book/{bookId}")
-    public ResponseEntity<List<Loan>> getLoansByBook(@PathVariable String bookId) {
-        return ResponseEntity.ok(loanService.getLoansByBook(bookId));
+    public ResponseEntity<List<LoanResponseDTO>> getLoansByBook(@PathVariable String bookId) {
+        List<LoanResponseDTO> result = loanService.getLoansByBook(bookId)
+                .stream()
+                .map(loanMapper::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "Expirar un préstamo", description = "Cambia el estado de un préstamo activo a expirado")
+    @Operation(summary = "Expirar un préstamo")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Préstamo expirado exitosamente"),
-            @ApiResponse(responseCode = "500", description = "Préstamo activo no encontrado")
+            @ApiResponse(responseCode = "404", description = "Préstamo activo no encontrado")
     })
     @PutMapping("/expire")
-    public ResponseEntity<Loan> expireLoan(@RequestParam String bookId,
-                                           @RequestParam String userId) {
-        return ResponseEntity.ok(loanService.expireLoan(bookId, userId));
+    public ResponseEntity<LoanResponseDTO> expireLoan(@RequestParam String bookId,
+                                                      @RequestParam String userId) {
+        return ResponseEntity.ok(loanMapper.toDTO(loanService.expireLoan(bookId, userId)));
     }
 }

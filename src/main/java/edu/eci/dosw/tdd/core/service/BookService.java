@@ -20,10 +20,10 @@ public class BookService {
         this.bookValidator = bookValidator;
     }
 
-    public void addBook(Book book, int copies) {
+    public void addBook(Book book) {
         bookValidator.validate(book);
-        bookValidator.validateCopies(copies);
-        books.put(book, copies);
+        bookValidator.validateStock(book.getTotalCopies(), book.getAvailableCopies());
+        books.put(book, book.getTotalCopies());
     }
 
     public List<Book> getAllBooks() {

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Tag(name = "Books", description = "Operaciones para gestión de libros")
 @RestController
@@ -26,7 +27,7 @@ public class BookController {
         this.bookMapper = bookMapper;
     }
 
-    @Operation(summary = "Agregar un libro", description = "Agrega un nuevo libro al sistema con su cantidad de copias disponibles")
+    @Operation(summary = "Agregar un libro")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Libro creado exitosamente"),
             @ApiResponse(responseCode = "400", description = "Datos del libro inválidos")
@@ -34,43 +35,48 @@ public class BookController {
     @PostMapping
     public ResponseEntity<Void> addBook(@RequestBody BookDTO bookDTO) {
         Book book = bookMapper.toModel(bookDTO);
-        bookService.addBook(book, bookDTO.getCopies());
+        bookService.addBook(book);
         return ResponseEntity.status(201).build();
     }
 
-    @Operation(summary = "Obtener todos los libros", description = "Retorna la lista completa de libros registrados en el sistema")
+    @Operation(summary = "Obtener todos los libros")
     @ApiResponse(responseCode = "200", description = "Lista de libros retornada exitosamente")
     @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks() {
-        return ResponseEntity.ok(bookService.getAllBooks());
+    public ResponseEntity<List<BookDTO>> getAllBooks() {
+        List<BookDTO> result = bookService.getAllBooks()
+                .stream()
+                .map(bookMapper::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "Obtener libro por ID", description = "Busca y retorna un libro específico por su identificador")
+    @Operation(summary = "Obtener libro por ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Libro encontrado"),
-            @ApiResponse(responseCode = "500", description = "Libro no encontrado")
+            @ApiResponse(responseCode = "404", description = "Libro no encontrado")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable String id) {
-        return ResponseEntity.ok(bookService.getBookById(id));
+    public ResponseEntity<BookDTO> getBookById(@PathVariable String id) {
+        return ResponseEntity.ok(bookMapper.toDTO(bookService.getBookById(id)));
     }
 
-    @Operation(summary = "Actualizar disponibilidad de un libro", description = "Cambia el estado de disponibilidad de un libro por su ID")
+    @Operation(summary = "Actualizar stock total del libro")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Disponibilidad actualizada exitosamente"),
-            @ApiResponse(responseCode = "500", description = "Libro no encontrado")
+            @ApiResponse(responseCode = "200", description = "Stock actualizado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "404", description = "Libro no encontrado")
     })
-    @PutMapping("/{id}/availability")
-    public ResponseEntity<Void> updateAvailability(@PathVariable String id,
-                                                   @RequestParam boolean available) {
-        bookService.updateBookAvailability(id, available);
+    @PutMapping("/{id}/stock")
+    public ResponseEntity<Void> updateStock(@PathVariable String id,
+                                            @RequestParam int totalCopies) {
+        bookService.updateTotalCopies(id, totalCopies);
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Eliminar un libro", description = "Elimina un libro del sistema por su ID")
+    @Operation(summary = "Eliminar un libro")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Libro eliminado exitosamente"),
-            @ApiResponse(responseCode = "500", description = "Libro no encontrado")
+            @ApiResponse(responseCode = "404", description = "Libro no encontrado")
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable String id) {
