@@ -33,7 +33,6 @@ public class LoanEntity {
     @Column(name = "return_date")
     private LocalDate returnDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "status_id", nullable = false)
-    private LoanStatusEntity status;
+    @Column(name = "status", nullable = false)
+    private String status;
 }
