@@ -14,8 +14,8 @@ public class LoanValidator {
         ValidationUtil.validateNotBlank(userId, "El ID del usuario no puede estar vacío");
     }
 
-    public void validateBookAvailable(int availableCopies){
-        if (availableCopies > 0){
+    public void validateBookAvailable(int availableCopies) {
+        if (availableCopies <= 0) {
             throw new BookNotAvailableException("No hay copias disponibles para el libro solicitado");
         }
     }
