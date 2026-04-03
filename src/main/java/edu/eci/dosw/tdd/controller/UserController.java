@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Datos inválidos o username ya en uso")
     })
     @PostMapping
-    public ResponseEntity<Void> registerUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<Void> registerUser(@Valid @RequestBody UserDTO userDTO) {
         User user = userMapper.toModel(userDTO);
         userService.registerUser(user);
         return ResponseEntity.status(201).build();
@@ -73,7 +74,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable String id,
+    public ResponseEntity<Void> updateUser(@Valid @PathVariable String id,
                                            @RequestBody UserDTO updatedUserDTO) {
         User updatedUser = userMapper.toModel(updatedUserDTO);
         userService.updateUser(id, updatedUser);

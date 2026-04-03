@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,7 @@ public class BookController {
             @ApiResponse(responseCode = "403", description = "No autorizado")
     })
     @PostMapping
-    public ResponseEntity<Void> addBook(@RequestBody BookDTO bookDTO) {
+    public ResponseEntity<Void> addBook(@Valid @RequestBody BookDTO bookDTO) {
         Book book = bookMapper.toModel(bookDTO);
         bookService.addBook(book);
         return ResponseEntity.status(201).build();
