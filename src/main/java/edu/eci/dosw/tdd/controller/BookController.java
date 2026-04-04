@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,18 +29,21 @@ public class BookController {
         this.bookMapper = bookMapper;
     }
 
+    @PreAuthorize("hasRole('LIBRARIAN')")
     @Operation(summary = "Agregar un libro")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Libro creado exitosamente"),
-            @ApiResponse(responseCode = "400", description = "Datos del libro inválidos")
+            @ApiResponse(responseCode = "400", description = "Datos del libro inválidos"),
+            @ApiResponse(responseCode = "403", description = "No autorizado")
     })
     @PostMapping
-    public ResponseEntity<Void> addBook(@RequestBody BookDTO bookDTO) {
+    public ResponseEntity<Void> addBook(@Valid @RequestBody BookDTO bookDTO) {
         Book book = bookMapper.toModel(bookDTO);
         bookService.addBook(book);
         return ResponseEntity.status(201).build();
     }
 
+    @PreAuthorize("hasAnyRole('LIBRARIAN', 'REGULAR_USER')")
     @Operation(summary = "Obtener todos los libros")
     @ApiResponse(responseCode = "200", description = "Lista de libros retornada exitosamente")
     @GetMapping
@@ -50,6 +55,7 @@ public class BookController {
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize("hasAnyRole('LIBRARIAN', 'REGULAR_USER')")
     @Operation(summary = "Obtener libro por ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Libro encontrado"),
@@ -60,10 +66,12 @@ public class BookController {
         return ResponseEntity.ok(bookMapper.toDTO(bookService.getBookById(id)));
     }
 
+    @PreAuthorize("hasRole('LIBRARIAN')")
     @Operation(summary = "Actualizar stock total del libro")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Stock actualizado exitosamente"),
             @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "403", description = "No autorizado"),
             @ApiResponse(responseCode = "404", description = "Libro no encontrado")
     })
     @PutMapping("/{id}/stock")
@@ -73,9 +81,11 @@ public class BookController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('LIBRARIAN')")
     @Operation(summary = "Eliminar un libro")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Libro eliminado exitosamente"),
+            @ApiResponse(responseCode = "403", description = "No autorizado"),
             @ApiResponse(responseCode = "404", description = "Libro no encontrado")
     })
     @DeleteMapping("/{id}")

@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,30 +29,20 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
+
     @Operation(summary = "Registrar un usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente"),
             @ApiResponse(responseCode = "400", description = "Datos inválidos o username ya en uso")
     })
     @PostMapping
-    public ResponseEntity<Void> registerUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<Void> registerUser(@Valid @RequestBody UserDTO userDTO) {
         User user = userMapper.toModel(userDTO);
         userService.registerUser(user);
         return ResponseEntity.status(201).build();
     }
 
-    @Operation(summary = "Login")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login exitoso"),
-            @ApiResponse(responseCode = "400", description = "Credenciales inválidas")
-    })
-    @PostMapping("/login")
-    public ResponseEntity<UserDTO> login(@RequestParam String username,
-                                         @RequestParam String password) {
-        User user = userService.login(username, password);
-        return ResponseEntity.ok(userMapper.toDTO(user));
-    }
-
+    @PreAuthorize("hasRole('LIBRARIAN')")
     @Operation(summary = "Obtener todos los usuarios")
     @ApiResponse(responseCode = "200", description = "Lista retornada exitosamente")
     @GetMapping
@@ -62,9 +54,11 @@ public class UserController {
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize("hasRole('LIBRARIAN')")
     @Operation(summary = "Obtener usuario por ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
+            @ApiResponse(responseCode = "403", description = "No autorizado"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     @GetMapping("/{id}")
@@ -72,22 +66,26 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDTO(userService.getUserById(id)));
     }
 
+    @PreAuthorize("hasRole('LIBRARIAN')")
     @Operation(summary = "Actualizar usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente"),
+            @ApiResponse(responseCode = "403", description = "No autorizado"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable String id,
+    public ResponseEntity<Void> updateUser(@Valid @PathVariable String id,
                                            @RequestBody UserDTO updatedUserDTO) {
         User updatedUser = userMapper.toModel(updatedUserDTO);
         userService.updateUser(id, updatedUser);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('LIBRARIAN')")
     @Operation(summary = "Eliminar usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Usuario eliminado exitosamente"),
+            @ApiResponse(responseCode = "403", description = "No autorizado"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     @DeleteMapping("/{id}")
