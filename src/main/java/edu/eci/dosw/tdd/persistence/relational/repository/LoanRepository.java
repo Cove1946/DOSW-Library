@@ -1,6 +1,6 @@
-package edu.eci.dosw.tdd.persistence.repository;
+package edu.eci.dosw.tdd.persistence.relational.repository;
 
-import edu.eci.dosw.tdd.persistence.entity.LoanEntity;
+import edu.eci.dosw.tdd.persistence.relational.entity.LoanEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

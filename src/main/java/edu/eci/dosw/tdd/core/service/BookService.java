@@ -4,9 +4,9 @@ import edu.eci.dosw.tdd.core.exception.BookNotFoundException;
 import edu.eci.dosw.tdd.core.model.Book;
 import edu.eci.dosw.tdd.core.util.ValidationUtil;
 import edu.eci.dosw.tdd.core.validator.BookValidator;
-import edu.eci.dosw.tdd.persistence.entity.BookEntity;
-import edu.eci.dosw.tdd.persistence.mapper.BookPersistenceMapper;
-import edu.eci.dosw.tdd.persistence.repository.BookRepository;
+import edu.eci.dosw.tdd.persistence.relational.entity.BookEntity;
+import edu.eci.dosw.tdd.persistence.relational.mapper.BookPersistenceMapper;
+import edu.eci.dosw.tdd.persistence.relational.repository.BookRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
