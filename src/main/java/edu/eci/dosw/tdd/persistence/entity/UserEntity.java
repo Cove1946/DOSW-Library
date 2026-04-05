@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,4 +29,13 @@ public class UserEntity {
 
     @Column(name = "role", nullable = false)
     private String role;
+
+    @Column(name = "email", unique = true)
+    private String email;
+
+    @Column(name = "membership_type")
+    private String membershipType;
+
+    @Column(name = "added_date")
+    private LocalDate addedDate;
 }

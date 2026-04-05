@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -17,6 +18,9 @@ public class LoanStatusEntity {
     @Column(name = "status_id")
     private Long id;
 
-    @Column(name = "status_name", nullable = false, unique = true)
+    @Column(name = "status_name", nullable = false)
     private String statusName;
+
+    @Column(name = "execution_date")
+    private LocalDate executionDate;
 }

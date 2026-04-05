@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,4 +24,10 @@ public class UserDTO {
     @NotBlank(message = "La contraseña no puede estar vacía")
     @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
     private String password;
+
+    private String email;
+
+    private String membershipType;
+
+    private LocalDate addedDate;
 }

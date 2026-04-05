@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,4 +30,30 @@ public class BookEntity {
 
     @Column(name = "available_copies", nullable = false)
     private int availableCopies;
+
+    @ElementCollection
+    @CollectionTable(name = "book_categories", joinColumns = @JoinColumn(name = "book_id"))
+    @Column(name = "category")
+    private List<String> categories;
+
+    @Column(name = "publication_type")
+    private String publicationType;
+
+    @Column(name = "publication_date")
+    private LocalDate publicationDate;
+
+    @Column(name = "isbn", unique = true)
+    private String isbn;
+
+    @Embedded
+    private MetadataEntity metadata;
+
+    @Column(name = "availability_status")
+    private String availabilityStatus;
+
+    @Column(name = "borrowed_copies")
+    private int borrowedCopies;
+
+    @Column(name = "added_to_catalog_date")
+    private LocalDate addedToCatalogDate;
 }

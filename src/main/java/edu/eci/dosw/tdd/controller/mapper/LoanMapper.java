@@ -15,7 +15,8 @@ public class LoanMapper {
                 loan.getUser().getUsername(),
                 loan.getLoanDate(),
                 loan.getReturnDate(),
-                loan.getStatus()
+                loan.getStatus(),
+                loan.getHistory()
         );
     }
 }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -35,4 +36,8 @@ public class LoanEntity {
 
     @Column(name = "status", nullable = false)
     private String status;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "loan_id")
+    private List<LoanStatusEntity> history;
 }
