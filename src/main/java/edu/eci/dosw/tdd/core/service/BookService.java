@@ -4,46 +4,36 @@ import edu.eci.dosw.tdd.core.exception.BookNotFoundException;
 import edu.eci.dosw.tdd.core.model.Book;
 import edu.eci.dosw.tdd.core.util.ValidationUtil;
 import edu.eci.dosw.tdd.core.validator.BookValidator;
-import edu.eci.dosw.tdd.persistence.relational.entity.BookEntity;
-import edu.eci.dosw.tdd.persistence.relational.mapper.BookPersistenceMapper;
-import edu.eci.dosw.tdd.persistence.relational.repository.BookRepository;
+import edu.eci.dosw.tdd.persistence.BookRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class BookService {
 
     private final BookRepository bookRepository;
-    private final BookPersistenceMapper bookMapper;
     private final BookValidator bookValidator;
 
     public BookService(BookRepository bookRepository,
-                       BookPersistenceMapper bookMapper,
                        BookValidator bookValidator) {
         this.bookRepository = bookRepository;
-        this.bookMapper = bookMapper;
         this.bookValidator = bookValidator;
     }
 
     public void addBook(Book book) {
         bookValidator.validate(book);
         bookValidator.validateStock(book.getTotalCopies(), book.getAvailableCopies());
-        bookRepository.save(bookMapper.toEntity(book));
+        bookRepository.save(book);
     }
 
     public List<Book> getAllBooks() {
-        return bookRepository.findAll()
-                .stream()
-                .map(bookMapper::toModel)
-                .collect(Collectors.toList());
+        return bookRepository.findAll();
     }
 
     public Book getBookById(String id) {
         ValidationUtil.validateNotBlank(id, "El ID del libro no puede estar vacío");
         return bookRepository.findById(id)
-                .map(bookMapper::toModel)
                 .orElseThrow(() -> new BookNotFoundException("Libro no encontrado con ID: " + id));
     }
 
@@ -52,7 +42,7 @@ public class BookService {
     }
 
     public void decreaseAvailableCopies(String id) {
-        BookEntity book = bookRepository.findById(id)
+        Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException("Libro no encontrado con ID: " + id));
         if (book.getAvailableCopies() <= 0) {
             throw new IllegalStateException("No hay copias disponibles para el libro: " + id);
@@ -62,7 +52,7 @@ public class BookService {
     }
 
     public void increaseAvailableCopies(String id) {
-        BookEntity book = bookRepository.findById(id)
+        Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException("Libro no encontrado con ID: " + id));
         if (book.getAvailableCopies() >= book.getTotalCopies()) {
             throw new IllegalStateException(
@@ -78,7 +68,7 @@ public class BookService {
         if (newTotal <= 0) {
             throw new IllegalArgumentException("El total de ejemplares debe ser mayor a 0");
         }
-        BookEntity book = bookRepository.findById(id)
+        Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException("Libro no encontrado con ID: " + id));
         book.setTotalCopies(newTotal);
         if (book.getAvailableCopies() > newTotal) {
@@ -92,6 +82,6 @@ public class BookService {
         if (!bookRepository.existsById(id)) {
             throw new BookNotFoundException("Libro no encontrado con ID: " + id);
         }
-        bookRepository.deleteById(id);
+        bookRepository.delete(id);
     }
 }

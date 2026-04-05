@@ -5,28 +5,23 @@ import edu.eci.dosw.tdd.core.model.Role;
 import edu.eci.dosw.tdd.core.model.User;
 import edu.eci.dosw.tdd.core.util.ValidationUtil;
 import edu.eci.dosw.tdd.core.validator.UserValidator;
-import edu.eci.dosw.tdd.persistence.relational.mapper.UserPersistenceMapper;
-import edu.eci.dosw.tdd.persistence.relational.repository.UserRepository;
+import edu.eci.dosw.tdd.persistence.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserPersistenceMapper userMapper;
     private final UserValidator userValidator;
     private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository,
-                       UserPersistenceMapper userMapper,
                        UserValidator userValidator,
                        PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.userMapper = userMapper;
         this.userValidator = userValidator;
         this.passwordEncoder = passwordEncoder;
     }
@@ -37,7 +32,7 @@ public class UserService {
             throw new IllegalArgumentException("El nombre de usuario ya está en uso: " + user.getUsername());
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(userMapper.toEntity(user));
+        userRepository.save(user);
     }
 
     public User login(String username, String password) {
@@ -45,30 +40,22 @@ public class UserService {
         ValidationUtil.validateNotBlank(password, "La contraseña no puede estar vacía");
 
         return userRepository.findByUsername(username)
-                .filter(entity -> passwordEncoder.matches(password, entity.getPassword()))
-                .map(userMapper::toModel)
+                .filter(user -> passwordEncoder.matches(password, user.getPassword()))
                 .orElseThrow(() -> new IllegalArgumentException("Credenciales inválidas"));
     }
 
     public List<User> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(userMapper::toModel)
-                .collect(Collectors.toList());
+        return userRepository.findAll();
     }
 
     public List<User> getUsersByRole(Role role) {
         ValidationUtil.validateNotNull(role, "El rol no puede ser nulo");
-        return userRepository.findByRole(role.name())
-                .stream()
-                .map(userMapper::toModel)
-                .collect(Collectors.toList());
+        return userRepository.findByRole(role.name());
     }
 
     public User getUserById(String id) {
         ValidationUtil.validateNotBlank(id, "El ID del usuario no puede estar vacío");
         return userRepository.findById(id)
-                .map(userMapper::toModel)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + id));
     }
 
@@ -78,7 +65,7 @@ public class UserService {
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException("Usuario no encontrado con ID: " + id);
         }
-        userRepository.save(userMapper.toEntity(updatedUser));
+        userRepository.save(updatedUser);
     }
 
     public void deleteUser(String id) {
@@ -86,12 +73,11 @@ public class UserService {
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException("Usuario no encontrado con ID: " + id);
         }
-        userRepository.deleteById(id);
+        userRepository.delete(id);
     }
 
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .map(userMapper::toModel)
                 .orElseThrow(() -> new UserNotFoundException(
                         "Usuario no encontrado con username: " + username));
     }

@@ -1,7 +1,6 @@
 package edu.eci.dosw.tdd.security;
 
 import edu.eci.dosw.tdd.persistence.relational.entity.UserEntity;
-import edu.eci.dosw.tdd.persistence.relational.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

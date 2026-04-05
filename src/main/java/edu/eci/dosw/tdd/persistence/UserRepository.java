@@ -11,4 +11,6 @@ public interface UserRepository {
     void delete(String id);
     boolean existsById(String id);
     Optional<User> findByUsername(String username);
+    boolean existsByUsername(String username);
+    List<User> findByRole(String role);
 }
