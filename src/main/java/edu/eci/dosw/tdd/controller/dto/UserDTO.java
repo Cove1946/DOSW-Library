@@ -1,5 +1,6 @@
 package edu.eci.dosw.tdd.controller.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDTO {
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String id;
     private String role;
     @NotBlank(message = "El nombre no puede estar vacío")

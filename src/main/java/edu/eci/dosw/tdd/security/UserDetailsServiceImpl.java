@@ -1,6 +1,7 @@
 package edu.eci.dosw.tdd.security;
 
-import edu.eci.dosw.tdd.persistence.relational.entity.UserEntity;
+import edu.eci.dosw.tdd.core.model.User;
+import edu.eci.dosw.tdd.persistence.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,14 +21,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity entity = userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "Usuario no encontrado: " + username));
 
         return new org.springframework.security.core.userdetails.User(
-                entity.getUsername(),
-                entity.getPassword(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + entity.getRole()))
+                user.getUsername(),
+                user.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
     }
 }

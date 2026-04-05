@@ -1,5 +1,6 @@
 package edu.eci.dosw.tdd.controller.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -14,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookDTO {
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String id;
 
     @NotBlank(message = "El título no puede estar vacío")

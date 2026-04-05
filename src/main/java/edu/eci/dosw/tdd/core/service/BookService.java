@@ -2,6 +2,7 @@ package edu.eci.dosw.tdd.core.service;
 
 import edu.eci.dosw.tdd.core.exception.BookNotFoundException;
 import edu.eci.dosw.tdd.core.model.Book;
+import edu.eci.dosw.tdd.core.util.IdGeneratorUtil;
 import edu.eci.dosw.tdd.core.util.ValidationUtil;
 import edu.eci.dosw.tdd.core.validator.BookValidator;
 import edu.eci.dosw.tdd.persistence.BookRepository;
@@ -22,6 +23,9 @@ public class BookService {
     }
 
     public void addBook(Book book) {
+        if (book.getId() == null || book.getId().isBlank()) {
+            book.setId(IdGeneratorUtil.generateId());
+        }
         bookValidator.validate(book);
         bookValidator.validateStock(book.getTotalCopies(), book.getAvailableCopies());
         bookRepository.save(book);

@@ -3,6 +3,7 @@ package edu.eci.dosw.tdd.core.service;
 import edu.eci.dosw.tdd.core.exception.UserNotFoundException;
 import edu.eci.dosw.tdd.core.model.Role;
 import edu.eci.dosw.tdd.core.model.User;
+import edu.eci.dosw.tdd.core.util.IdGeneratorUtil;
 import edu.eci.dosw.tdd.core.util.ValidationUtil;
 import edu.eci.dosw.tdd.core.validator.UserValidator;
 import edu.eci.dosw.tdd.persistence.UserRepository;
@@ -27,6 +28,9 @@ public class UserService {
     }
 
     public void registerUser(User user) {
+        if (user.getId() == null || user.getId().isBlank()) {
+            user.setId(IdGeneratorUtil.generateId());
+        }
         userValidator.validate(user);
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new IllegalArgumentException("El nombre de usuario ya está en uso: " + user.getUsername());

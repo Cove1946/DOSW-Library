@@ -30,6 +30,7 @@ public class LoanDocumentMapper {
         user.setId(doc.getUserId());
 
         return new Loan(
+                doc.getId(),
                 book,
                 user,
                 doc.getLoanDate(),
@@ -51,14 +52,16 @@ public class LoanDocumentMapper {
                 ))
                 .toList();
 
-        return new LoanDocument(
-                null,
-                model.getBook().getId(),
-                model.getUser().getId(),
-                model.getLoanDate(),
-                model.getReturnDate(),
-                model.getStatus() != null ? model.getStatus().name() : null,
-                historyDocs
-        );
+        LoanDocument doc = new LoanDocument();
+        if (model.getId() != null && !model.getId().isBlank()) {
+            doc.setId(model.getId());
+        }
+        doc.setBookId(model.getBook().getId());
+        doc.setUserId(model.getUser().getId());
+        doc.setLoanDate(model.getLoanDate());
+        doc.setReturnDate(model.getReturnDate());
+        doc.setStatus(model.getStatus() != null ? model.getStatus().name() : null);
+        doc.setHistory(historyDocs);
+        return doc;
     }
 }

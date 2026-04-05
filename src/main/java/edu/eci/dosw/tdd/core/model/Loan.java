@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 
 public class Loan {
+    private String id;
     private Book book;
     private User user;
     private LocalDate loanDate;

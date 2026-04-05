@@ -35,6 +35,7 @@ public class LoanPersistenceMapper {
                 .collect(Collectors.toList());
 
         return new Loan(
+                String.valueOf(entity.getId()),
                 bookMapper.toModel(entity.getBook()),
                 userMapper.toModel(entity.getUser()),
                 entity.getLoanDate(),

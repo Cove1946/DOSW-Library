@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -16,7 +17,7 @@ import java.util.List;
 public class LoanDocument {
 
     @Id
-    private String id;
+    private String id = UUID.randomUUID().toString();
     private String bookId;
     private String userId;
     private LocalDate loanDate;
