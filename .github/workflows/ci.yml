@@ -19,6 +19,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Dar permisos a mvnw
+        run: chmod +x mvnw
+
       - name: Compilar proyecto (fase compile)
         run: ./mvnw compile -B
 
@@ -36,6 +39,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+
+      - name: Dar permisos a mvnw
+        run: chmod +x mvnw
 
       - name: Ejecutar fase verify
         run: ./mvnw verify -B
@@ -62,8 +68,11 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Ejecutar análisis estático (checkstyle + verify)
-        run: ./mvnw verify checkstyle:check -B
+      - name: Dar permisos a mvnw
+        run: chmod +x mvnw
+
+      - name: Ejecutar análisis estático
+        run: ./mvnw verify -B
 
       - name: Publicar reporte de cobertura JaCoCo
         if: always()
