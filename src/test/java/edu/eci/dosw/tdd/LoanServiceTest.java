@@ -246,4 +246,102 @@ public class LoanServiceTest {
                 () -> loanService.getLoansByBook("no-existe"));
     }
 
+
+
+
+    // ============================================================
+// Tests Reto #6 - Reservas (Préstamos)
+// ============================================================
+
+    // Dado que tengo 1 reserva registrada,
+// Cuando lo consulto a nivel de servicio,
+// Entonces la consulta será exitosa validando el campo id.
+    @Test
+    void dadoQueHayUnaReserva_cuandoConsultoPorUsuario_entoncesRetornaReservaConId() {
+        when(userRepository.existsById("user-1")).thenReturn(true);
+        when(loanRepository.findByUserId("user-1")).thenReturn(List.of(loan));
+        when(bookRepository.findById("book-1")).thenReturn(Optional.of(book));
+        when(userRepository.findById("user-1")).thenReturn(Optional.of(user));
+
+        List<Loan> result = loanService.getLoansByUser("user-1");
+
+        assertEquals(1, result.size());
+        assertEquals("loan-1", result.get(0).getId());
+    }
+
+    // Dado que no hay ninguna reserva registrada,
+// Cuando la consulto a nivel de servicio,
+// Entonces la consulta no retorna ningún resultado.
+    @Test
+    void dadoQueNoHayReservas_cuandoConsultoPorUsuario_entoncesRetornaListaVacia() {
+        when(userRepository.existsById("user-1")).thenReturn(true);
+        when(loanRepository.findByUserId("user-1")).thenReturn(List.of());
+
+        List<Loan> result = loanService.getLoansByUser("user-1");
+
+        assertTrue(result.isEmpty());
+    }
+
+    // Dado que no hay ninguna reserva registrada,
+// Cuando la creo a nivel de servicio,
+// Entonces la creación será exitosa.
+    @Test
+    void dadoQueNoHayReservas_cuandoCreaUna_entoncesLaCreacionEsExitosa() {
+        doNothing().when(loanValidator).validateIds(anyString(), anyString());
+        doNothing().when(loanValidator).validateBookAvailable(anyInt());
+        when(bookRepository.findById("book-1")).thenReturn(Optional.of(book));
+        when(userRepository.findById("user-1")).thenReturn(Optional.of(user));
+        when(loanRepository.save(any())).thenReturn(loan);
+        when(bookRepository.save(any())).thenReturn(book);
+
+        Loan result = loanService.createLoan("book-1", "user-1");
+
+        assertNotNull(result);
+        assertEquals(Status.ACTIVE, result.getStatus());
+    }
+
+    // Dado que tengo 1 reserva registrada,
+// Cuando la elimino a nivel de servicio,
+// Entonces la eliminación será exitosa.
+    @Test
+    void dadoQueHayUnaReserva_cuandoLaElimino_entoncesLaEliminacionEsExitosa() {
+        when(loanRepository.findById("loan-1")).thenReturn(Optional.of(loan));
+        doNothing().when(loanValidator).validateActiveLoan(any());
+        when(bookRepository.findById("book-1")).thenReturn(Optional.of(book));
+        when(bookRepository.save(any())).thenReturn(book);
+        when(loanRepository.save(any())).thenReturn(loan);
+
+        Loan result = loanService.returnBook("loan-1");
+
+        assertNotNull(result);
+        assertEquals(Status.RETURNED, result.getStatus());
+    }
+
+    // Dado que tengo 1 reserva registrada,
+// Cuando la elimino y consulto a nivel de servicio,
+// Entonces el resultado de la consulta no retorna ningún resultado.
+    @Test
+    void dadoQueHayUnaReserva_cuandoLaEliminoYConsulto_entoncesListaQuedaVacia() {
+        // Step 1: devolver el préstamo (eliminar reserva)
+        when(loanRepository.findById("loan-1")).thenReturn(Optional.of(loan));
+        doNothing().when(loanValidator).validateActiveLoan(any());
+        when(bookRepository.findById("book-1")).thenReturn(Optional.of(book));
+        when(bookRepository.save(any())).thenReturn(book);
+        when(loanRepository.save(any())).thenAnswer(inv -> {
+            Loan saved = inv.getArgument(0);
+            return saved;
+        });
+
+        loanService.returnBook("loan-1");
+
+        // Step 2: consultar — simular que ya no hay préstamos activos para el usuario
+        when(userRepository.existsById("user-1")).thenReturn(true);
+        when(loanRepository.findByUserId("user-1")).thenReturn(List.of());
+
+        List<Loan> result = loanService.getLoansByUser("user-1");
+
+        assertTrue(result.isEmpty());
+    }
+
+
 }
