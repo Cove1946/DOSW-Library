@@ -32,8 +32,25 @@ public class LoanRepositoryJpaImpl implements LoanRepository {
         LoanEntity entity = mapper.toEntity(loan);
         if (entity.getId() == null) {
             em.persist(entity);
+            em.flush();
         } else {
-            entity = em.merge(entity);
+            LoanEntity managed = em.find(LoanEntity.class, entity.getId());
+            if (managed != null) {
+                managed.setStatus(entity.getStatus());
+                managed.setReturnDate(entity.getReturnDate());
+                entity.getHistory().forEach(h -> {
+                    if (h.getId() == null) {
+                        h.setLoan(managed);
+                        managed.getHistory().add(h);
+                        em.persist(h);
+                    }
+                });
+                em.flush();
+                entity = managed;
+            } else {
+                entity = em.merge(entity);
+                em.flush();
+            }
         }
         return mapper.toModel(entity);
     }

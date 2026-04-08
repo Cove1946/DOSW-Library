@@ -4,9 +4,10 @@ import edu.eci.dosw.tdd.core.model.Loan;
 import edu.eci.dosw.tdd.core.model.LoanHistory;
 import edu.eci.dosw.tdd.core.model.Status;
 import edu.eci.dosw.tdd.persistence.relational.entity.LoanEntity;
-import edu.eci.dosw.tdd.persistence.relational.entity.LoanStatusEntity;
+import edu.eci.dosw.tdd.persistence.relational.entity.LoanHistoryEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,23 +49,28 @@ public class LoanPersistenceMapper {
     public LoanEntity toEntity(Loan model) {
         if (model == null) return null;
 
-        List<LoanStatusEntity> historyEntities = model.getHistory() == null
-                ? Collections.emptyList()
-                : model.getHistory().stream()
-                .map(h -> {
-                    LoanStatusEntity lse = new LoanStatusEntity();
-                    lse.setStatusName(h.getStatus() != null ? h.getStatus().name() : null);
-                    lse.setExecutionDate(h.getExecutionDate());
-                    return lse;
-                })
-                .collect(Collectors.toList());
-
         LoanEntity entity = new LoanEntity();
+        if (model.getId() != null && !model.getId().isBlank()) {
+            entity.setId(Long.valueOf(model.getId()));
+        }
         entity.setBook(bookMapper.toEntity(model.getBook()));
         entity.setUser(userMapper.toEntity(model.getUser()));
         entity.setLoanDate(model.getLoanDate());
         entity.setStatus(model.getStatus() != null ? model.getStatus().name() : null);
         entity.setReturnDate(model.getReturnDate());
+
+        List<LoanHistoryEntity> historyEntities = model.getHistory() == null
+                ? new ArrayList<>()
+                : model.getHistory().stream()
+                .map(h -> {
+                    LoanHistoryEntity lhe = new LoanHistoryEntity();
+                    lhe.setStatusName(h.getStatus() != null ? h.getStatus().name() : null);
+                    lhe.setExecutionDate(h.getExecutionDate());
+                    lhe.setLoan(entity);
+                    return lhe;
+                })
+                .collect(Collectors.toList());
+
         entity.setHistory(historyEntities);
         return entity;
     }

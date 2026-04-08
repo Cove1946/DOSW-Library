@@ -31,10 +31,8 @@ public class BookEntity {
     @Column(name = "available_copies", nullable = false)
     private int availableCopies;
 
-    @ElementCollection
-    @CollectionTable(name = "book_categories", joinColumns = @JoinColumn(name = "book_id"))
-    @Column(name = "category")
-    private List<String> categories;
+    @Column(name = "categories")
+    private String categories;
 
     @Column(name = "publication_type")
     private String publicationType;

@@ -6,6 +6,10 @@ import edu.eci.dosw.tdd.persistence.relational.entity.BookEntity;
 import edu.eci.dosw.tdd.persistence.relational.entity.MetadataEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 @Component
 public class BookPersistenceMapper {
 
@@ -21,13 +25,17 @@ public class BookPersistenceMapper {
             );
         }
 
+        List<String> categories = (entity.getCategories() != null && !entity.getCategories().isBlank())
+                ? Arrays.asList(entity.getCategories().split(","))
+                : Collections.emptyList();
+
         return new Book(
                 entity.getId(),
                 entity.getTitle(),
                 entity.getAuthor(),
                 entity.getTotalCopies(),
                 entity.getAvailableCopies(),
-                entity.getCategories(),
+                categories,
                 entity.getPublicationType(),
                 entity.getPublicationDate(),
                 entity.getIsbn(),
@@ -50,13 +58,17 @@ public class BookPersistenceMapper {
             );
         }
 
+        String categories = (model.getCategories() != null && !model.getCategories().isEmpty())
+                ? String.join(",", model.getCategories())
+                : null;
+
         return new BookEntity(
                 model.getId(),
                 model.getTitle(),
                 model.getAuthor(),
                 model.getTotalCopies(),
                 model.getAvailableCopies(),
-                model.getCategories(),
+                categories,
                 model.getPublicationType(),
                 model.getPublicationDate(),
                 model.getIsbn(),

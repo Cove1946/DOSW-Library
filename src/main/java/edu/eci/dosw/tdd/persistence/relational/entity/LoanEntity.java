@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -37,7 +38,6 @@ public class LoanEntity {
     @Column(name = "status", nullable = false)
     private String status;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "loan_id")
-    private List<LoanStatusEntity> history;
+    @OneToMany(mappedBy = "loan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<LoanHistoryEntity> history = new ArrayList<>();
 }
