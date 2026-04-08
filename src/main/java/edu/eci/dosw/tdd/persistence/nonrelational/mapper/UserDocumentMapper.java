@@ -33,7 +33,8 @@ public class UserDocumentMapper {
                 model.getRole() != null ? model.getRole().name() : null,
                 model.getEmail(),
                 model.getMembershipType() != null ? model.getMembershipType().name() : null,
-                model.getAddedDate()
+                model.getAddedDate(),
+                null
         );
     }
 }

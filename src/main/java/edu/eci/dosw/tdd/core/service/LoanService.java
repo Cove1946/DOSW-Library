@@ -56,11 +56,19 @@ public class LoanService {
     }
 
     public Loan returnBook(String loanId) {
+        System.out.println(">>> returnBook called with loanId: " + loanId);
+
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Préstamo no encontrado con ID: " + loanId));
 
+        System.out.println(">>> Loan found: " + loan.getId() + ", status: " + loan.getStatus());
+        System.out.println(">>> Book ID in loan: " + (loan.getBook() != null ? loan.getBook().getId() : "NULL"));
+        System.out.println(">>> User ID in loan: " + (loan.getUser() != null ? loan.getUser().getId() : "NULL"));
+
+        System.out.println(">>> Validating active loan...");
         loanValidator.validateActiveLoan(loan);
 
+        System.out.println(">>> Setting history...");
         if (loan.getHistory() == null) {
             loan.setHistory(new ArrayList<>());
         }
@@ -68,12 +76,19 @@ public class LoanService {
         loan.setStatus(Status.RETURNED);
         loan.setReturnDate(DateUtil.today());
 
+        System.out.println(">>> Looking up book: " + loan.getBook().getId());
         Book book = bookRepository.findById(loan.getBook().getId())
                 .orElseThrow(() -> new BookNotFoundException("Libro no encontrado"));
+
+        System.out.println(">>> Book found: " + book.getId() + ", availableCopies: " + book.getAvailableCopies());
         book.setAvailableCopies(book.getAvailableCopies() + 1);
         bookRepository.save(book);
 
-        return enrichLoan(loanRepository.save(loan));
+        System.out.println(">>> Saving loan...");
+        Loan saved = loanRepository.save(loan);
+
+        System.out.println(">>> Enriching loan...");
+        return enrichLoan(saved);
     }
 
     public Loan expireLoan(String loanId) {

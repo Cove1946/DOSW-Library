@@ -5,29 +5,30 @@ import edu.eci.dosw.tdd.persistence.nonrelational.document.LoanDocument;
 import edu.eci.dosw.tdd.persistence.nonrelational.document.LoanHistoryDocument;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class LoanDocumentMapper {
 
-    public Loan toModel(LoanDocument doc) {
+    public Loan toModel(LoanDocument doc, String userId) {
         if (doc == null) return null;
 
         List<LoanHistory> history = doc.getHistory() == null
-                ? Collections.emptyList()
+                ? new ArrayList<>()
                 : doc.getHistory().stream()
                 .map(h -> new LoanHistory(
                         h.getStatus() != null ? Status.valueOf(h.getStatus()) : null,
                         h.getExecutionDate()
                 ))
-                .toList();
+                .collect(Collectors.toList());
 
         Book book = new Book();
         book.setId(doc.getBookId());
 
         User user = new User();
-        user.setId(doc.getUserId());
+        user.setId(userId);
 
         return new Loan(
                 doc.getId(),
@@ -44,20 +45,17 @@ public class LoanDocumentMapper {
         if (model == null) return null;
 
         List<LoanHistoryDocument> historyDocs = model.getHistory() == null
-                ? Collections.emptyList()
+                ? new ArrayList<>()
                 : model.getHistory().stream()
                 .map(h -> new LoanHistoryDocument(
                         h.getStatus() != null ? h.getStatus().name() : null,
                         h.getExecutionDate()
                 ))
-                .toList();
+                .collect(Collectors.toList());
 
         LoanDocument doc = new LoanDocument();
-        if (model.getId() != null && !model.getId().isBlank()) {
-            doc.setId(model.getId());
-        }
-        doc.setBookId(model.getBook().getId());
-        doc.setUserId(model.getUser().getId());
+        doc.setId(model.getId());
+        doc.setBookId(model.getBook() != null ? model.getBook().getId() : null);
         doc.setLoanDate(model.getLoanDate());
         doc.setReturnDate(model.getReturnDate());
         doc.setStatus(model.getStatus() != null ? model.getStatus().name() : null);
