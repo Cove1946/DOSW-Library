@@ -1,4 +1,4 @@
-package edu.eci.dosw.tdd.core.model;
+package edu.eci.dosw.tdd.persistence.nonrelational.document;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,15 +9,11 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
-public class Loan {
+public class LoanDocument {
     private String id;
-    private Book book;
-    private User user;
+    private String bookId;
     private LocalDate loanDate;
-    private Status status;
     private LocalDate returnDate;
-
-    private List<LoanHistory> history;
+    private String status;
+    private List<LoanHistoryDocument> history;
 }
-

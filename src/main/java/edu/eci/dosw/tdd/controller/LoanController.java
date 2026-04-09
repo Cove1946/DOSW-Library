@@ -56,10 +56,9 @@ public class LoanController {
             @ApiResponse(responseCode = "409", description = "El préstamo ya fue devuelto"),
             @ApiResponse(responseCode = "404", description = "Préstamo no encontrado")
     })
-    @PutMapping("/return")
-    public ResponseEntity<LoanResponseDTO> returnBook(@RequestParam String bookId,
-                                                      @RequestParam String userId) {
-        return ResponseEntity.ok(loanMapper.toDTO(loanService.returnBook(bookId, userId)));
+    @PutMapping("/return/{loanId}")
+    public ResponseEntity<LoanResponseDTO> returnBook(@PathVariable String loanId) {
+        return ResponseEntity.ok(loanMapper.toDTO(loanService.returnBook(loanId)));
     }
 
     @PreAuthorize("hasRole('LIBRARIAN')")
@@ -131,9 +130,8 @@ public class LoanController {
             @ApiResponse(responseCode = "403", description = "No autorizado"),
             @ApiResponse(responseCode = "404", description = "Préstamo activo no encontrado")
     })
-    @PutMapping("/expire")
-    public ResponseEntity<LoanResponseDTO> expireLoan(@RequestParam String bookId,
-                                                      @RequestParam String userId) {
-        return ResponseEntity.ok(loanMapper.toDTO(loanService.expireLoan(bookId, userId)));
+    @PutMapping("/expire/{loanId}")
+    public ResponseEntity<LoanResponseDTO> expireLoan(@PathVariable String loanId) {
+        return ResponseEntity.ok(loanMapper.toDTO(loanService.expireLoan(loanId)));
     }
 }

@@ -1,15 +1,19 @@
 package edu.eci.dosw.tdd.controller.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDTO {
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String id;
     private String role;
     @NotBlank(message = "El nombre no puede estar vacío")
@@ -22,4 +26,10 @@ public class UserDTO {
     @NotBlank(message = "La contraseña no puede estar vacía")
     @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
     private String password;
+
+    private String email;
+
+    private String membershipType;
+
+    private LocalDate addedDate;
 }
