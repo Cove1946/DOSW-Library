@@ -6,10 +6,6 @@ import edu.eci.dosw.tdd.persistence.nonrelational.document.LoanDocument;
 import edu.eci.dosw.tdd.persistence.nonrelational.document.UserDocument;
 import edu.eci.dosw.tdd.persistence.nonrelational.mapper.LoanDocumentMapper;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -21,58 +17,55 @@ import java.util.UUID;
 @Profile("mongo")
 public class LoanRepositoryMongoImpl implements LoanRepository {
 
-    private final MongoTemplate mongoTemplate;
+    private final MongoLoanRepository repository;
     private final LoanDocumentMapper mapper;
 
-    public LoanRepositoryMongoImpl(MongoTemplate mongoTemplate, LoanDocumentMapper mapper) {
-        this.mongoTemplate = mongoTemplate;
+    public LoanRepositoryMongoImpl(MongoLoanRepository repository, LoanDocumentMapper mapper) {
+        this.repository = repository;
         this.mapper = mapper;
     }
 
     @Override
     public Loan save(Loan loan) {
-        LoanDocument loanDoc = mapper.toDocument(loan);
         String userId = loan.getUser().getId();
+        LoanDocument loanDoc = mapper.toDocument(loan);
 
         if (loanDoc.getId() == null) {
             loanDoc.setId(UUID.randomUUID().toString());
         }
 
-        Query queryExists = new Query(
-                Criteria.where("_id").is(userId)
-                        .and("loans.id").is(loanDoc.getId())
-        );
-        boolean exists = mongoTemplate.exists(queryExists, UserDocument.class);
+        UserDocument userDoc = repository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
+        List<LoanDocument> loans = userDoc.getLoans();
+        if (loans == null) loans = new ArrayList<>();
+
+        boolean exists = loans.stream().anyMatch(l -> loanDoc.getId().equals(l.getId()));
         if (exists) {
-            Query q = new Query(Criteria.where("_id").is(userId).and("loans.id").is(loanDoc.getId()));
-            Update u = new Update().set("loans.$", loanDoc);
-            mongoTemplate.updateFirst(q, u, UserDocument.class);
+            loans.replaceAll(l -> loanDoc.getId().equals(l.getId()) ? loanDoc : l);
         } else {
-            Query q = new Query(Criteria.where("_id").is(userId));
-            Update u = new Update().push("loans", loanDoc);
-            mongoTemplate.updateFirst(q, u, UserDocument.class);
+            loans.add(loanDoc);
         }
+
+        userDoc.setLoans(loans);
+        repository.save(userDoc);
 
         return mapper.toModel(loanDoc, userId);
     }
 
     @Override
     public Optional<Loan> findById(String id) {
-        Query query = new Query(Criteria.where("loans.id").is(id));
-        UserDocument userDoc = mongoTemplate.findOne(query, UserDocument.class);
-        if (userDoc == null) return Optional.empty();
-
-        return userDoc.getLoans().stream()
-                .filter(l -> id.equals(l.getId()))
-                .findFirst()
-                .map(l -> mapper.toModel(l, userDoc.getId()));
+        return repository.findByLoanId(id)
+                .flatMap(userDoc -> userDoc.getLoans().stream()
+                        .filter(l -> id.equals(l.getId()))
+                        .findFirst()
+                        .map(l -> mapper.toModel(l, userDoc.getId())));
     }
 
     @Override
     public List<Loan> findAll() {
         List<Loan> result = new ArrayList<>();
-        for (UserDocument userDoc : mongoTemplate.findAll(UserDocument.class)) {
+        for (UserDocument userDoc : repository.findAll()) {
             if (userDoc.getLoans() != null) {
                 userDoc.getLoans().forEach(l -> result.add(mapper.toModel(l, userDoc.getId())));
             }
@@ -82,25 +75,28 @@ public class LoanRepositoryMongoImpl implements LoanRepository {
 
     @Override
     public void delete(String id) {
-        Query query = new Query(Criteria.where("loans.id").is(id));
-        Update update = new Update().pull("loans", new org.bson.Document("id", id));
-        mongoTemplate.updateFirst(query, update, UserDocument.class);
+        repository.findByLoanId(id).ifPresent(userDoc -> {
+            userDoc.getLoans().removeIf(l -> id.equals(l.getId()));
+            repository.save(userDoc);
+        });
     }
 
     @Override
     public List<Loan> findByUserId(String userId) {
-        UserDocument userDoc = mongoTemplate.findById(userId, UserDocument.class);
-        if (userDoc == null || userDoc.getLoans() == null) return new ArrayList<>();
-        return userDoc.getLoans().stream()
-                .map(l -> mapper.toModel(l, userId))
-                .toList();
+        return repository.findById(userId)
+                .map(userDoc -> {
+                    if (userDoc.getLoans() == null) return new ArrayList<Loan>();
+                    return userDoc.getLoans().stream()
+                            .map(l -> mapper.toModel(l, userId))
+                            .toList();
+                })
+                .orElse(new ArrayList<>());
     }
 
     @Override
     public List<Loan> findByBookId(String bookId) {
         List<Loan> result = new ArrayList<>();
-        Query query = new Query(Criteria.where("loans.bookId").is(bookId));
-        for (UserDocument userDoc : mongoTemplate.find(query, UserDocument.class)) {
+        for (UserDocument userDoc : repository.findByLoanBookId(bookId)) {
             userDoc.getLoans().stream()
                     .filter(l -> bookId.equals(l.getBookId()))
                     .forEach(l -> result.add(mapper.toModel(l, userDoc.getId())));
@@ -110,12 +106,10 @@ public class LoanRepositoryMongoImpl implements LoanRepository {
 
     @Override
     public Optional<Loan> findByBookIdAndUserIdAndStatus(String bookId, String userId, String status) {
-        UserDocument userDoc = mongoTemplate.findById(userId, UserDocument.class);
-        if (userDoc == null || userDoc.getLoans() == null) return Optional.empty();
-
-        return userDoc.getLoans().stream()
-                .filter(l -> bookId.equals(l.getBookId()) && status.equals(l.getStatus()))
-                .findFirst()
-                .map(l -> mapper.toModel(l, userId));
+        return repository.findById(userId)
+                .flatMap(userDoc -> userDoc.getLoans().stream()
+                        .filter(l -> bookId.equals(l.getBookId()) && status.equals(l.getStatus()))
+                        .findFirst()
+                        .map(l -> mapper.toModel(l, userId)));
     }
 }
